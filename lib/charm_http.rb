@@ -47,9 +47,9 @@ class CharmHttp
   end
   C[:security_groups] = group
 
-  # ubuntu 12.04 us-east-1 64-bit instance-store
-  C[:image] = C[:ec2].images["ami-41047328"]
-  C[:instance_type] = "m1.small"
+  # ubuntu 14.04 us-east-1 64-bit hvm instance-store
+  C[:image] = C[:ec2].images["ami-34e74d5c"]
+  C[:instance_type] = "c3.large" # moderate I/O, high CPU, $0.105/hr
 
   def self.run(command)
     LOG.puts "localhost: #{command}"

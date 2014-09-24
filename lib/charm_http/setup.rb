@@ -30,9 +30,10 @@ class CharmHttp
 
       [
       "sudo apt-get update",
-      "yes | sudo apt-get install make gcc git-core libevent-dev",
-      "git clone https://github.com/archaelus/hummingbird.git || (cd hummingbird && git pull)",
-      "cd hummingbird && make hstress"
+      "yes | sudo apt-get install git-core mercurial",
+      "which go || (curl -o goinst.sh https://gist.githubusercontent.com/bgentry/3f508a2c6cb6417ad46c/raw/d3f065b9d5da740045634ef0a4dea98425528f7d/goinst.sh && chmod +x goinst.sh && sudo VERSION=1.3.1 ./goinst.sh)",
+      "source /etc/profile && go get -u github.com/bgentry/vegeta && cd $GOPATH/src/github.com/bgentry/vegeta && git checkout buckets && go install",
+      "source /etc/profile && sudo cp `which vegeta` /usr/local/bin/",
       ].each do |command|
         CharmHttp.parallel_ssh(instances, command)
       end

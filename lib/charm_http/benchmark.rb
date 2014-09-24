@@ -6,8 +6,6 @@ class CharmHttp
     class HstressError < RuntimeError
     end
 
-    KEEPALIVE = 25
-
     def self.run(appnames, hostnames, dyno_min, dyno_max, test_duration, timeout, concurrency, runs, buckets)
       targets = appnames.split(',').zip(hostnames.split(','))
       instances = CharmHttp.instances
@@ -48,7 +46,7 @@ class CharmHttp
     end
 
     def self.reset(instances)
-      CharmHttp.parallel_ssh(instances, "killall hstress || true")
+      CharmHttp.parallel_ssh(instances, "killall vegeta || true")
     end
 
     def self.test(instances, hostname, concurrency, seconds, buckets)
@@ -66,7 +64,12 @@ class CharmHttp
       end
 
 #      puts "Testing #{hostname} (#{host_hdr}) on #{port}"
-      CharmHttp.parallel_ssh(instances, "hummingbird/hstress -c #{concurrency / instances.size} -r #{KEEPALIVE} -b #{buckets} -i 1 -H #{host_hdr} #{hostname} #{port}", seconds).each do |value|
+      cmd = "echo \"GET http://#{hostname}:#{port}\" | "+
+      "vegeta attack -duration #{seconds}s timeout=10s -rate #{concurrency / instances.size} "+
+        "-header=\"Host: #{host_hdr}\" | vegeta report -buckets #{buckets}"
+      CharmHttp.parallel_ssh(instances, cmd).each do |value|
+        puts "VALUE: #{value}"
+        next
         if value =~ /(Assertion.*?failed)/
           raise HstressError, $1
         end

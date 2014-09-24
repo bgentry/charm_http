@@ -73,7 +73,7 @@ class CharmHttp
 
   def self.ssh(instance, original_command, timeout = nil)
     command = original_command
-    command = "timeout -2 #{timeout} #{command} || true" if timeout
+    command = "timeout -s 2 #{timeout} #{command} || true" if timeout
     command = "ssh -i #{C[:key_file]} -o 'StrictHostKeyChecking no' ubuntu@#{instance.public_dns_name} '#{command}' 2>&1"
     LOG.puts "#{instance.public_dns_name}: #{command}"
     response = `#{command}`
